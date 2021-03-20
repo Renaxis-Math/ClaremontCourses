@@ -3284,7 +3284,7 @@
 										5. Drag-n-Drop Course Planner is expected in summer 2021. Stay tune! <br>
 										6. (Awkward) Instruction video if you're interested: <a href="https://drive.google.com/file/d/1rTSV2NDil0Vd_offkeTxgQRHXcD2RiQq/view?usp=sharing
 										">Link</a><br>
-										7. Updated a new course: WRIT101PZ
+										7. Updated a new course: WRIT101PZ - Multilingual Writing
 									</p>
 								</div>
 								<div class="keep_sticky module-finder-input">
@@ -3350,7 +3350,7 @@
                                              </a>
                                           </h2>
 													<p> 
-														<span>{{course.major|safe}}</span> • <span>{{course.college|safe}}</span> • <a href="{{course.link}}">Link</a> 
+														<span>{{course.major|safe}}</span> • <span>{{course.college|safe}}</span> {% if course.link != none %}• <a href="{{course.link}}">Link</a>{% endif %}
 													</p> 
 													{% if course.fulfillRequirements != "" %} 
 													{% for i in range(0,course.fulfillRequirements|length,3) %}
@@ -3391,7 +3391,7 @@
 														<br> {% endfor %} </div>
 													<button class="btn"><i class="fa fa-download">
                                                 <a href="{{course.syllabus}}" style="font-weight:900;"> Syllabus</a></i></button>
-													<a href="\{{course.code}}\upload">
+													<a href="\{{course.code|replace('<mark>', '')|replace('</mark>', '')}}\upload">
 														<button class="btn"><i class="fa">
                                                 <img src="https://img.icons8.com/metro/13/000000/upload.png"/><span style="color:#ff5138; font-weight: 900;"> Upload</span></i> </button>
 													</a>
