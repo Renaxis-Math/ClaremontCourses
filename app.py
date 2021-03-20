@@ -598,7 +598,7 @@ def upload(code):
         with gzip.open(syllabus_url, "rb") as f:
             data = f.read()
             syllabus_link = json.loads(data.decode('utf-8'))
-        UPLOAD_FOLDER = '/tmp'
+        UPLOAD_FOLDER = 'tmp'
         app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
         # check if the post request has the file part
         if 'file' not in request.files:
