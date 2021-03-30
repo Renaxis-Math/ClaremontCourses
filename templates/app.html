@@ -2782,7 +2782,7 @@
 		dt {
 		   font-weight: 700!important;
 		   display: block!important;
-		   color: #77697a!important
+		   color: #eb1d00!important;
 		}
 
 		input {
@@ -3284,7 +3284,7 @@
 										5. Drag-n-Drop Course Planner is expected in summer 2021. Stay tune! <br>
 										6. (Awkward) Instruction video if you're interested: <a href="https://drive.google.com/file/d/1rTSV2NDil0Vd_offkeTxgQRHXcD2RiQq/view?usp=sharing
 										">Link</a><br>
-										7. Updated a new course: WRIT101PZ - Multilingual Writing
+										7. My Courses hasn't worked yet, but isn't it interesting to know you'll be able to shop for courses in the future?
 									</p>
 								</div>
 								<div class="keep_sticky module-finder-input">
@@ -3302,7 +3302,7 @@
 												<circle cx="11" cy="11" r="8" onclick="clickFunction()"></circle>
 												<line x1="21" y1="21" x2="16.65" y2="16.65" onclick="searchFunction()"></line>
 											</svg> {% if input != "" %} {% endif %}
-											<input id="search-box" class="form-control form-control-lg" type="text" onfocus="clicked()" autocomplete="off" placeholder="DOUBLE-QUOTE to select the whole phrase." spellcheck="true" value="{{input}}" onkeyup="checkBlankInput(event)"> </form>
+											<input id="search-box" class="form-control form-control-lg" type="text" onfocus="clicked()" onkeydown="searchFunctionEnter(event)" autocomplete="off" placeholder='Search for an exact phrase, use quotes:" ". Hit ENTER to search.' spellcheck="true" value="{{input}}" onkeyup="checkBlankInput(event)"> </form>
 											<div class="btn-group btn-group-sm btn-block" onclick="searchFunction()" style="width: 11.5%; margin-top: 9px; margin-left: 5px;">
 											<button type="button" class="btn btn-outline-primary btn-block" style="width:36px;" onclick="searchFunction()">
 												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="_2l2bSz6r _3J_m0kW3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -3312,27 +3312,14 @@
 									</div>
 								</div>
 								<div>
+									<div class="btn-group btn-group-sm btn-block" style="margin-bottom: -10%;margin-right: 5px;">
+										<button type="button" class="btn btn-outline-primary btn-block">
+											<img src="https://i.ibb.co/6YtkVgb/shopping-cart-1.png" style="position: relative;top: 10%;"alt="shopping-cart"/>
+											My Courses </button>
+									</div>									
 									<div class="select_school">
-										<div class="form-group">
-											<label for="crit-subject" class="sr-only">School</label>
-											<div class="seligo-container" data-mode="inline">
-												<select id="schools" class="filteringform seligo-desktop seligo-original" onchange="schools(this)" data-type="single-column" data-seligo-label="School" tabindex="-1">
-													<option value="all">School</option> 
-													{% if "CMC" in schools %}
-													<option value="CMC" selected>Claremont Mckenna</option> {% else %}
-													<option value="CMC">Claremont McKenna</option> {% endif %} {% if "Harvey" in schools %}
-													<option value="Harvey Mudd" selected>Harvey Mudd</option> {% else %}
-													<option value="Harvey Mudd">Harvey Mudd</option> {% endif %} {% if "Pitzer" in schools %}
-													<option value="Pitzer" selected>Pitzer</option> {% else %}
-													<option value="Pitzer">Pitzer</option> {% endif %} {% if "Pomona" in schools %}
-													<option value="Pomona" selected>Pomona</option> {% else %}
-													<option value="Pomona">Pomona</option> {% endif %} {% if "Scripps" in schools %}
-													<option value="Scripps" selected>Scripps</option> {% else %}
-													<option value="Scripps">Scripps</option> {% endif %} {% if "Keck" in schools %}
-													<option value="Keck" selected>Keck Science</option> {% else %}
-													<option value="Keck">Keck Science</option> {% endif %} </select>
-											</div>
-										</div> {{count}} courses found </div>
+										{{count}} courses found 
+									</div>
 									<ul class="whole_courses" id="list"> {% for course in courses %}
 										<li class="list_courses">
 											<div class="row">
@@ -3368,12 +3355,13 @@
                                                    	{% endif %}
                                                    	{{requirement}}</span> 
 													{%- endfor %} </p> {% endfor %} {% endif %} </header>
-													<dl> <dt style="color: #77697a;"><b>Description:</b></dt>
+													<dl> <dt><b>Description:</b></dt>
 														<p> {{course.description|safe}} </p>
 													</dl>
 												</div>
 												<div class="col-lg-4 col-md-12 col-sm-4">
 													<div class="header_semesters">
+														<h4>Semester offerings:</h4><br>
 														<div class="btn-group btn-group-sm" role="group" aria-label="Choices"> {% for semester in term1 %} {% if semester in course.term %}
 															<button type="button" class="btn btn-primary">{{semester}}</button> {% else %}
 															<button type="button" disabled class="btn btn-outline-primary">{{semester}}</button> {% endif %} {% endfor %} </div>
@@ -3426,9 +3414,89 @@
 											<header class="clearing_filtering_system">
 												<h3>Filters</h3>
 												<a>
-													<button class="btn btn-link btn-sm" type="button" onclick="clearAll()">Clear Filters</button>
+													<button class="btn btn-link btn-sm" type="button" onclick="clearAll()">Clear All</button>
 												</a>
 											</header>
+											<a>
+												<div style="text-align: center;">~Single Option Only~</div>
+											</a>
+											<div class="subject_filtering_system">
+												<h4 class="items_filtering_system">College</h4>
+												<label for="crit-subject" class="sr-only">School</label>
+												<div class="seligo-container" data-mode="inline">
+													<select id="schools" style="width: 75%;" class="filteringform seligo-desktop seligo-original" onchange="schools(this)" data-type="single-column" data-seligo-label="School" tabindex="-1">
+														<option value="all">All Claremont Colleges</option> 
+														{% if "CMC" in schools %}
+														<option value="CMC" selected>Claremont Mckenna</option> {% else %}
+														<option value="CMC">Claremont McKenna</option> {% endif %} {% if "Harvey" in schools %}
+														<option value="Harvey Mudd" selected>Harvey Mudd</option> {% else %}
+														<option value="Harvey Mudd">Harvey Mudd</option> {% endif %} {% if "Pitzer" in schools %}
+														<option value="Pitzer" selected>Pitzer</option> {% else %}
+														<option value="Pitzer">Pitzer</option> {% endif %} {% if "Pomona" in schools %}
+														<option value="Pomona" selected>Pomona</option> {% else %}
+														<option value="Pomona">Pomona</option> {% endif %} {% if "Scripps" in schools %}
+														<option value="Scripps" selected>Scripps</option> {% else %}
+														<option value="Scripps">Scripps</option> {% endif %} {% if "Keck" in schools %}
+														<option value="Keck" selected>Keck Science</option> {% else %}
+														<option value="Keck">Keck Science</option> {% endif %} </select>
+												</div>
+											</div>											
+											<div class="subject_filtering_system">
+												<h4 class="items_filtering_system">Only courses offered in current semester</h4>
+												<ul class="list-unstyled">
+													<li class="formcheck_filtering_system form-check"> {% if semester == "2021SP" %}
+														<input class="form-check-input" id="semester" type="checkbox" onclick="year('2021SP', 'semester=')" autocomplete="off" checked> {% else %}
+														<input class="form-check-input" id="semester" type="checkbox" onclick="year('2021SP', 'semester=')" autocomplete="off"> {% endif %}
+														<label for="semester" class="form-check-label formcheck_labeling_system" onclick="year('2021SP', 'semester=')">Yes </label>
+													</li>
+												</ul>
+											</div>
+											<div class="subject_filtering_system">
+												<h4 class="items_filtering_system">Require Permission (PERM)</h4>
+												<ul class="list-unstyled">
+													<li class="formcheck_filtering_system form-check"> {% if perm == "no" %}
+														<input class="form-check-input" id="perm" type="checkbox" onclick="perm('no')" autocomplete="off" checked> {% else %}
+														<input class="form-check-input" id="perm" type="checkbox" onclick="perm('no')" autocomplete="off"> {% endif %}
+														<label for="perm" class="form-check-label formcheck_labeling_system" onclick="perm('no')">No </label>
+													</li>
+													<li class="formcheck_filtering_system form-check"> {% if perm == "yes" %}
+														<input class="form-check-input" id="perm" type="checkbox" onclick="perm('yes')" checked autocomplete="off"> {% else %}
+														<input class="form-check-input" id="perm" type="checkbox" onclick="perm('yes')" autocomplete="off"> {% endif %}
+														<label class="form-check-label formcheck_labeling_system" onclick="perm('yes')">Yes </label>
+													</li>
+												</ul>
+											</div>											
+											<div class="subject_filtering_system">
+												<h4 class="items_filtering_system">Has Corequisite Courses</h4>
+												<ul class="list-unstyled">
+													<li class="formcheck_filtering_system form-check"> {% if corequisiteclicked == "no" %}
+														<input class="form-check-input" id="corequisite" type="checkbox" onclick="corequisites('no')" checked autocomplete="off"> {% else %}
+														<input class="form-check-input" id="corequisite" type="checkbox" onclick="corequisites('no')" autocomplete="off"> {% endif %}
+														<label id="corequisite" for="corequisite" class="form-check-label formcheck_labeling_system" onclick="corequisites('no')">No </label>
+													</li>
+													<li class="formcheck_filtering_system form-check"> {% if corequisiteclicked == "yes" %}
+														<input class="form-check-input" id="corequisite" type="checkbox" onclick="corequisites('yes')" checked autocomplete="off"> {% else %}
+														<input class="form-check-input" id="corequisite" type="checkbox" onclick="corequisites('yes')" autocomplete="off"> {% endif %}
+														<label id="corequisite" for="corequisite" class="form-check-label formcheck_labeling_system" onclick="corequisites('yes')">Yes </label>
+													</li>
+												</ul>
+											</div>											
+											<div class="subject_filtering_system">
+												<h4 class="items_filtering_system">Has Concurrent Courses</h4>
+												<ul class="list-unstyled">
+													<li class="formcheck_filtering_system form-check"> {% if concurrentclicked == "no" %}
+														<input class="form-check-input" id="concurrent" type="checkbox" onclick="concurrent('no')" checked autocomplete="off"> {% else %}
+														<input class="form-check-input" id="concurrent" type="checkbox" onclick="concurrent('no')" autocomplete="off"> {% endif %}
+														<label id="concurrent" for="concurrent" class="form-check-label formcheck_labeling_system" onclick="concurrent('no')">No </label>
+													</li>
+													<li class="formcheck_filtering_system form-check"> {% if concurrentclicked == "yes" %}
+														<input class="form-check-input" id="concurrent" type="checkbox" onclick="concurrent('yes')" checked autocomplete="off"> {% else %}
+														<input class="form-check-input" id="concurrent" type="checkbox" onclick="concurrent('yes')" autocomplete="off"> {% endif %}
+														<label id="concurrent" for="concurrent" class="form-check-label formcheck_labeling_system" onclick="concurrent('yes')">Yes </label>
+													</li>
+												</ul>
+											</div>											
+											<a><div style="text-align: center;">~Multiple Options Available~</div></a>
 											<div class="subject_filtering_system">
 												<h4 class="items_filtering_system">Subjects</h4>
 												<div class="seligo-container" data-mode="inline">
@@ -3455,31 +3523,6 @@
 														<input id="{{no}}" class="form-check-input" type="checkbox" onclick="removegeneds({{no}})" checked>
 														<label for="gened" class="form-check-label formcheck_labeling_system">{{gened}} </label>
 													</li> {% endfor %} {% endif %} </div>
-											</div>
-											<div class="subject_filtering_system">
-												<h4 class="items_filtering_system">Only courses offered in current semester</h4>
-												<ul class="list-unstyled">
-													<li class="formcheck_filtering_system form-check"> {% if semester == "2021SP" %}
-														<input class="form-check-input" id="semester" type="checkbox" onclick="year('2021SP', 'semester=')" autocomplete="off" checked> {% else %}
-														<input class="form-check-input" id="semester" type="checkbox" onclick="year('2021SP', 'semester=')" autocomplete="off"> {% endif %}
-														<label for="semester" class="form-check-label formcheck_labeling_system" onclick="year('2021SP', 'semester=')">Yes </label>
-													</li>
-												</ul>
-											</div>
-											<div class="subject_filtering_system">
-												<h4 class="items_filtering_system">Require Permission (PERM)</h4>
-												<ul class="list-unstyled">
-													<li class="formcheck_filtering_system form-check"> {% if perm == "no" %}
-														<input class="form-check-input" id="perm" type="checkbox" onclick="perm('no')" autocomplete="off" checked> {% else %}
-														<input class="form-check-input" id="perm" type="checkbox" onclick="perm('no')" autocomplete="off"> {% endif %}
-														<label for="perm" class="form-check-label formcheck_labeling_system" onclick="perm('no')">No </label>
-													</li>
-													<li class="formcheck_filtering_system form-check"> {% if perm == "yes" %}
-														<input class="form-check-input" id="perm" type="checkbox" onclick="perm('yes')" checked autocomplete="off"> {% else %}
-														<input class="form-check-input" id="perm" type="checkbox" onclick="perm('yes')" autocomplete="off"> {% endif %}
-														<label class="form-check-label formcheck_labeling_system" onclick="perm('yes')">Yes </label>
-													</li>
-												</ul>
 											</div>
 											<div class="subject_filtering_system">
 												<h4 class="items_filtering_system">Has Off-campus Equivalents At</h4>
@@ -3540,36 +3583,6 @@
 														<label for="2" class="form-check-label formcheck_labeling_system">2+ </label>
 													</li>
 												</div>
-											</div>
-											<div class="subject_filtering_system">
-												<h4 class="items_filtering_system">Has Corequisites</h4>
-												<ul class="list-unstyled">
-													<li class="formcheck_filtering_system form-check"> {% if corequisiteclicked == "no" %}
-														<input class="form-check-input" id="corequisite" type="checkbox" onclick="corequisites('no')" checked autocomplete="off"> {% else %}
-														<input class="form-check-input" id="corequisite" type="checkbox" onclick="corequisites('no')" autocomplete="off"> {% endif %}
-														<label id="corequisite" for="corequisite" class="form-check-label formcheck_labeling_system" onclick="corequisites('no')">No </label>
-													</li>
-													<li class="formcheck_filtering_system form-check"> {% if corequisiteclicked == "yes" %}
-														<input class="form-check-input" id="corequisite" type="checkbox" onclick="corequisites('yes')" checked autocomplete="off"> {% else %}
-														<input class="form-check-input" id="corequisite" type="checkbox" onclick="corequisites('yes')" autocomplete="off"> {% endif %}
-														<label id="corequisite" for="corequisite" class="form-check-label formcheck_labeling_system" onclick="corequisites('yes')">Yes </label>
-													</li>
-												</ul>
-											</div>											
-											<div class="subject_filtering_system">
-												<h4 class="items_filtering_system">Has Concurrents</h4>
-												<ul class="list-unstyled">
-													<li class="formcheck_filtering_system form-check"> {% if concurrentclicked == "no" %}
-														<input class="form-check-input" id="concurrent" type="checkbox" onclick="concurrent('no')" checked autocomplete="off"> {% else %}
-														<input class="form-check-input" id="concurrent" type="checkbox" onclick="concurrent('no')" autocomplete="off"> {% endif %}
-														<label id="concurrent" for="concurrent" class="form-check-label formcheck_labeling_system" onclick="concurrent('no')">No </label>
-													</li>
-													<li class="formcheck_filtering_system form-check"> {% if concurrentclicked == "yes" %}
-														<input class="form-check-input" id="concurrent" type="checkbox" onclick="concurrent('yes')" checked autocomplete="off"> {% else %}
-														<input class="form-check-input" id="concurrent" type="checkbox" onclick="concurrent('yes')" autocomplete="off"> {% endif %}
-														<label id="concurrent" for="concurrent" class="form-check-label formcheck_labeling_system" onclick="concurrent('yes')">Yes </label>
-													</li>
-												</ul>
 											</div>
 										</div>
 									</div>
@@ -4038,6 +4051,42 @@
 							}
 						}
 					};
+										
+					function searchFunctionEnter(event) {
+						if (event.key !== 'Enter'){
+							return;
+						}
+						var input;
+						input = document.getElementById("search-box").value;
+						current_path = window.location.href;
+						if(current_path.includes("page=")) {
+							current_path = removePage(current_path)
+						}
+						if(input != "") {
+							var indexOfFirstQuestionMark = current_path.indexOf("?");
+							var indexOfFirstAmpersand = current_path.indexOf("&");
+							var indexOfFirstEqual = current_path.indexOf("=")
+							tailpath = current_path.slice(indexOfFirstQuestionMark + 1);
+							if(current_path.includes("search=") === false) {
+								if(current_path.includes("&") === true) {
+									document.location.href = current_path.slice(0, indexOfFirstQuestionMark + 1) + "search=" + input + "&" + tailpath;
+								} else {
+									current_path = current_path.replace(window.location.href, "");
+									document.location.href = current_path.replace("?", "") + "?search=" + input + "&";
+								}
+							} else {
+								document.location.href = current_path.slice(0, indexOfFirstEqual + 1) + input + current_path.slice(indexOfFirstAmpersand)
+							}
+						} else {
+							var indexOfFirstQuestionMark = current_path.indexOf("?");
+							var indexOfFirstAmpersand = current_path.indexOf("&");
+							remove = current_path.slice(indexOfFirstQuestionMark + 1, indexOfFirstAmpersand + 1)
+							if(current_path.includes("&") === true) {
+								alert(current_path)
+								document.location.href = current_path.replace(remove, "")
+							}
+						}
+					};					
 					
 					function checkBlankInput(event){
 						current_path = window.location.href;
