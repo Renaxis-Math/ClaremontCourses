@@ -3048,7 +3048,9 @@
 			--workload-preparation-color: #ff3448;
 		}
 	</style>
+
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="{{url_for('static', filename='report.css')}}">
 	<title>{{course.code}} - {{course.title}}</title>
 	<!-- <script src="{{url_for('static', filename='course_specific_script_final.js')}}"></script> -->
 </head>
@@ -3058,6 +3060,47 @@
 {% else %}
 <body class="theme-eighties mode-dark" data-react-helmet="class">
 {% endif %}
+	<div id="report_form" style="display:none;">
+        <div class="overlay">
+            <div class="overlay_positioning scrollable-y overlay_fit" tabindex="-1" role="dialog" aria-modal="true">
+                <button class="close" type="button" aria-label="Close" onclick="displayReport()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <h2 class="overlay_title">Feedback for {{code}}</h2>
+                <form class="form-row" method="POST" enctype=multipart/form-data>
+                    <div class="form_space col-sm-12">
+                        <label for="report-error-email">Your 5C school email:</label>
+                        <input type="email" name="email" id="report-error-email" pattern=".+@.*\.*(claremontmckenna|hmc|pomona|pitzer|scrippscollege)\.edu" placeholder= "abc@xyz.(claremontmckenna/hmc/pomona/pitzer/scrippscollege).edu" class="form-control" required="" value="">
+                    </div>                    
+                    <div class="form_space col-sm-12">
+                        <label for="report-error-faculty">You're writing this form to report:</label>
+                        <select name="error_type" class="form-control" id="report-error-faculty" required="">
+                            <option value="Error(s)">Error(s)</option>
+                            <option value="Improvement(s)">Improvement(s)</option>
+                            <option value="New Idea(s)">New idea(s)</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form_space col-sm-12">
+                        <label for="report-error-message">Please describe in detail:</label>
+                        <textarea name="description" id="report-error-message" class="form-control" rows="8" required=""></textarea>
+                    </div>
+                    <div class="form_space col-sm-12">
+                        <label for="report-error-message">You can add a visual representation here:</label>
+                        <input type="file" rows="8" id="myFile" name="filename">
+                    </div>
+                    <footer class="overlay_submit col-sm-12">
+                        <button type="submit" name="submit" class="htn htn-primary htn-lg">Submit</button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+	</div>  
+
+<!-- Original -->
 	<div id="app">
 		<div class="app-container">
 			<nav class="whole_courses">
@@ -3102,15 +3145,15 @@
                                                         </span>{{course.title}}
                                             </h1> {% endif %}
 											<div class="report_errors_box" style="float: right;">
-												<div class="btn-group btn-font btn-group-sm btn-block" onclick="report()">
-													<button type="button" class="btn btn-outline-primary btn-block">
+												<div class="btn-group btn-font btn-group-sm btn-block">
+													<button type="button" class="btn btn-outline-primary btn-block" onclick="displayReport()">
 														<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="report_errors_icon">
 															<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"> </path>
 															<line x1="12" y1="9" x2="12" y2="13"></line>
 															<line x1="12" y1="17" x2="12.01" y2="17"></line>
-														</svg> Report Errors </button>
+														</svg> Feedback </button>
 													</a>
-												</div>
+												</div>												
 											</div>
 										</div>
 										<p><span>{{course.major}}</span> • <span>{{course.college}}</span> • <span><a href="{{course.link}}">Link</a></span></p> {% if course.fulfillRequirements|length > 0 %} {% for i in range(0,course.fulfillRequirements|length,3) %}
@@ -3768,11 +3811,7 @@
 							document.location.href = current_path + "semester=" + sem + "&";
 						}
 					};
-					
-					function report() {
-						window.open("https://forms.gle/QWgGpB2sjYF6RQBN7")
-					};
-					
+										
 					function getCookie(cname) {
 						var name = cname + "=";
 						var decodedCookie = decodeURIComponent(document.cookie);
@@ -3800,6 +3839,15 @@
 							document.cookie = "darkmode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 						}
 					  }
+
+					  function displayReport() {
+						var x = document.getElementById("report_form");
+						if (x.style.display === "none") {
+						  x.style.display = "block";
+						} else {
+						  x.style.display = "none";
+						}
+					  }					  
 				</script>
 			</footer>
 		</div>

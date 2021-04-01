@@ -1,4 +1,7 @@
 from __future__ import print_function
+import urllib3
+import requests
+import email, smtplib, ssl
 import sqlite3
 import convert_prereq
 import convert_coreq
@@ -24,6 +27,10 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaFileUpload
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 
@@ -564,7 +571,7 @@ def root():
         season=season, requirements=requirements, genedclickeds=genedclickeds
         )   
 
-@app.route('/<code>')
+@app.route('/<code>', methods=['GET', 'POST'])
 def course(code):
     prereqs = "None"
     cur = con.cursor()
@@ -582,11 +589,81 @@ def course(code):
         cookies = "yes"
     else:
         cookies = "no"
+    
+    if request.method == "POST":
+        test(code)
+
     return render_template(
         'course.html', courses=courses, cookies=cookies, course=course, prereqs=prereqs, terms=terms, 
         academicyear=academicyear, season=season, code=code, term1=term1,term2=term2
     )
 
+def test(code):
+    if request.method == "POST":
+        # me == my email address
+        # you == recipient's email address
+        me = request.form['email']
+        you = "chu.hoang322@gmail.com"
+        port = 465  # For SSL
+        password = "tonikroos14"   
+
+        # Create message container - the correct MIME type is multipart/alternative.
+        msg = MIMEMultipart()
+        msg['Subject'] = "[ClaremontCourses] " + request.form["error_type"] 
+        msg['From'] = me
+        msg['To'] = you
+
+        # Create the body of the message (a plain-text and an HTML version).
+        raw_text = "From: " + me
+        html = """\
+        <html>
+        <head></head>
+        <body><p>""" + raw_text + """</p>""" + request.form['description'] + """</body></html>"""
+
+        # Record the MIME types of both parts - text/plain and text/html.
+        html_text = MIMEText(html, 'html')
+
+        # Attach parts into message container.
+        # According to RFC 2046, the last part of a multipart message, in this case
+        # the HTML message, is best and preferred.
+        msg.attach(html_text)           
+        try:  
+            UPLOAD_FOLDER = 'tmp'
+            file = request.files['filename']
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            # Open PDF file in binary mode
+            with open(UPLOAD_FOLDER + "/" + filename, "rb") as attachment:
+                # Add file as application/octet-stream
+                # Email client can usually download this automatically as attachment
+                part = MIMEBase("application", "octet-stream")
+                part.set_payload(attachment.read())
+
+            # Encode file in ASCII characters to send by email    
+            encoders.encode_base64(part)
+
+            # Add header as key/value pair to attachment part
+            part.add_header(
+                "Content-Disposition",
+                f"attachment; filename= {filename}",
+            )
+            msg.attach(part)
+        except:
+            pass
+        text = msg.as_string()  
+
+        # Create a secure SSL context
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+            server.login(you, password)
+            # Send email here
+
+            # sendmail function takes 3 arguments: sender's address, recipient's address
+            # and message to send - here it is sent as one string.
+            server.sendmail(me, you, text)
+            server.quit()        
+        return
+    return
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -637,11 +714,83 @@ def upload(code):
     return render_template(
         'upload.html', code=code
     )
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),'favicon.ico', mimetype='image/vnd.microsoft.icon')
   
+# @app.route('/test/<code>', methods=['GET', 'POST'])
+# def test(code):
+#     if request.method == "POST":
+#         # me == my email address
+#         # you == recipient's email address
+#         me = request.form['email']
+#         you = "chu.hoang322@gmail.com"
+#         port = 465  # For SSL
+#         password = "tonikroos14"   
 
+#         # Create message container - the correct MIME type is multipart/alternative.
+#         msg = MIMEMultipart()
+#         msg['Subject'] = "[ClaremontCourses] " + request.form["error_type"] 
+#         msg['From'] = me
+#         msg['To'] = you
+
+#         # Create the body of the message (a plain-text and an HTML version).
+#         raw_text = "From: " + me
+#         html = """\
+#         <html>
+#         <head></head>
+#         <body><p>""" + raw_text + """</p>""" + request.form['description'] + """</body></html>"""
+
+#         # Record the MIME types of both parts - text/plain and text/html.
+#         html_text = MIMEText(html, 'html')
+
+#         # Attach parts into message container.
+#         # According to RFC 2046, the last part of a multipart message, in this case
+#         # the HTML message, is best and preferred.
+#         msg.attach(html_text)           
+#         try:  
+#             UPLOAD_FOLDER = 'tmp'
+#             file = request.files['filename']
+#             filename = secure_filename(file.filename)
+#             file.save(os.path.join(UPLOAD_FOLDER, filename))
+#             # Open PDF file in binary mode
+#             with open(UPLOAD_FOLDER + "/" + filename, "rb") as attachment:
+#                 # Add file as application/octet-stream
+#                 # Email client can usually download this automatically as attachment
+#                 part = MIMEBase("application", "octet-stream")
+#                 part.set_payload(attachment.read())
+
+#             # Encode file in ASCII characters to send by email    
+#             encoders.encode_base64(part)
+
+#             # Add header as key/value pair to attachment part
+#             part.add_header(
+#                 "Content-Disposition",
+#                 f"attachment; filename= {filename}",
+#             )
+#             msg.attach(part)
+#         except:
+#             pass
+#         text = msg.as_string()  
+
+#         # Create a secure SSL context
+#         context = ssl.create_default_context()
+#         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+#             server.login(you, password)
+#             # Send email here
+
+#             # sendmail function takes 3 arguments: sender's address, recipient's address
+#             # and message to send - here it is sent as one string.
+#             server.sendmail(me, you, text)
+#             server.quit()        
+
+#         return render_template(
+#             'test.html', code=code
+#         )  
+#     return render_template(
+#         'test.html',code=code
+#     )   
 
 
 
