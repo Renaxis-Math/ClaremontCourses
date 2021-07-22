@@ -138,12 +138,11 @@ dmypy.json
 cython_debug/
 
 # Database
-*.db
+.db
 
 # Maintenance folder
 update/
-processingStuff_with_newCourses.py
 
 # Google credentials
-credentials.json
-*.pickle
+.json
+.pickle
