@@ -136,3 +136,14 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Database
+*.db
+
+# Maintenance folder
+update/
+processingStuff_with_newCourses.py
+
+# Google credentials
+credentials.json
+*.pickle

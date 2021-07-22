@@ -34,6 +34,7 @@ from email.mime.text import MIMEText
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 
+
 def Create_Service(client_secret_file, api_name, api_version, *scopes):
     CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
@@ -85,10 +86,15 @@ terms_url = os.path.join(SITE_ROOT, "static/data", "terms.txt.gz")
 syllabus_url = os.path.join(SITE_ROOT, "static/data", "official_syllabus.json.gz")
 requirements_url = os.path.join(SITE_ROOT, "static/data", "official_requirements.txt.gz")
 
+# Static
 
+con = sqlite3.connect("claremontcourses.db", check_same_thread=False)
+con.row_factory = sqlite3.Row
 
-academicyear = "2020/2021"
-season = "Spring"
+academicyear = "2021/2022"
+season = "Fall"
+current_semester = "2021FA"
+
 with gzip.open(term1_url, 'rb') as f:
     data = f.read().decode('ascii')
     term1 = list(ast.literal_eval(data))
@@ -101,9 +107,6 @@ with gzip.open(terms_url, 'rb') as f:
 with gzip.open(requirements_url, 'rb') as f:
     data = f.read().decode('ascii')
     requirements = list(ast.literal_eval(data))
-
-con = sqlite3.connect("claremontcourses.db", check_same_thread=False)
-con.row_factory = sqlite3.Row
 
 converted_prereqs = convert_prereq.main()
 converted_coreqs = convert_coreq.main()
@@ -254,8 +257,10 @@ def markText(texts, original):
             original = original.replace(found, "<mark>" + found + "</mark>")
     return original
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def root():
+    if request.method == "POST":
+        test("Main Page")    
     count = 0
     numberofcourses = 60
     previous = True
@@ -293,13 +298,23 @@ def root():
     filterGeneds = []
     count_special = 0
 
+    # Get all ids for cookies dict
+    collected_ids = list()
+    cur = con.cursor()
+    selects = cur.execute("SELECT code FROM temp_claremontcourses;")
+    for select in selects:
+        if request.cookies.get(select[0]):
+            collected_ids.append(select[0])  
+
 # Search
-    if request.args.get('search'):   
+    selectType = None
+    if request.args.get('searchall'):   
         # filterCourses
+        selectType = 'all'
         filterCourses = list()
         count += 1
         count_special += 1
-        search = request.args.get('search').replace("%20", " ")
+        search = request.args.get('searchall').replace("%20", " ")
         subsearch = search.lower()
         subsearch = re.sub(' +', ' ', search)
         search_regex = '\"(.*?)\"'
@@ -312,7 +327,7 @@ def root():
                 search_i = searches[i]
                 if i > 0:
                     sql += " AND"
-                sql += " (code LIKE '%" + search_i + "%'" + " OR title LIKE '%" + search_i + "%'" + " OR description LIKE '%" + search_i + "%'" + " OR major LIKE '%" + search_i + "%'" + " OR college LIKE '%" + search_i + "%')"
+                sql += " (code LIKE '%" + search_i + "%'" + " OR title LIKE '%" + search_i + "%'" + " OR description LIKE '%" + search_i + "%')"
             cur = con.cursor()
             cur.execute(query_start + sql)
             con.commit()
@@ -324,8 +339,8 @@ def root():
         if subsearch != "":
             cur = con.cursor()
             query = "'%" + subsearch + "%'"
-            sub_sql = query_start + " code LIKE ? OR title LIKE ? OR description LIKE ? OR major LIKE ? OR college LIKE ?"
-            cur.execute(sub_sql, (query, query, query, query, query))
+            sub_sql = query_start + " code LIKE ? OR title LIKE ? OR description LIKE ?"
+            cur.execute(sub_sql, (query, query, query))
             filterCourses += querytoList(cur.fetchall())
             searches += subsearch.split()
             if len(filterCourses) == 0:
@@ -335,11 +350,154 @@ def root():
                     search_i = searches[i]
                     if i > 0:
                         sql += " OR"
-                    sql += " (code LIKE '%" + search_i + "%'" + " OR title LIKE '%" + search_i + "%'" + " OR description LIKE '%" + search_i + "%'" + " OR major LIKE '%" + search_i + "%'" + " OR college LIKE '%" + search_i + "%')"
+                    sql += " (code LIKE '%" + search_i + "%'" + " OR title LIKE '%" + search_i + "%'" + " OR description LIKE '%" + search_i + "%')"
                 cur.execute(query_start + sql)
                 con.commit()
                 filterCourses += querytoList(cur.fetchall())
         # print(searches)
+        totalList.append(filterCourses)
+    if request.args.get('searchtitle'):   
+        # filterCourses
+        selectType = 'title'
+        filterCourses = list()
+        count += 1
+        count_special += 1
+        search = request.args.get('searchtitle').replace("%20", " ")
+        subsearch = search.lower()
+        subsearch = re.sub(' +', ' ', search)
+        search_regex = '\"(.*?)\"'
+        searches = re.findall(search_regex, subsearch)
+        query_start = "SELECT id FROM temp_claremontcourses WHERE"
+        if len(searches) > 0:
+            length = len(searches)
+            sql = ''
+            for i in range(length):
+                search_i = searches[i]
+                if i > 0:
+                    sql += " AND"
+                sql += " (title LIKE '%" + search_i + "%')"
+            cur = con.cursor()
+            cur.execute(query_start + sql)
+            con.commit()
+            filterCourses += querytoList(cur.fetchall())
+
+        for mustSearch in searches:
+            subsearch = subsearch.replace('"' + mustSearch + '"', "").strip()
+        
+        if subsearch != "":
+            cur = con.cursor()
+            query = "'%" + subsearch + "%'"
+            sub_sql = query_start + " title LIKE ?"
+            cur.execute(sub_sql, (query,))
+            filterCourses += querytoList(cur.fetchall())
+            searches += subsearch.split()
+            if len(filterCourses) == 0:
+                length = len(searches)
+                sql = ''
+                for i in range(length):
+                    search_i = searches[i]
+                    if i > 0:
+                        sql += " OR"
+                    sql += " (title LIKE '%" + search_i + "%')"
+                cur.execute(query_start + sql)
+                con.commit()
+                filterCourses += querytoList(cur.fetchall())
+        # print(searches)
+        totalList.append(filterCourses)
+    if request.args.get('searchdescription'):   
+        # filterCourses
+        selectType = 'description'
+        filterCourses = list()
+        count += 1
+        count_special += 1
+        search = request.args.get('searchdescription').replace("%20", " ")
+        subsearch = search.lower()
+        subsearch = re.sub(' +', ' ', search)
+        search_regex = '\"(.*?)\"'
+        searches = re.findall(search_regex, subsearch)
+        query_start = "SELECT id FROM temp_claremontcourses WHERE"
+        if len(searches) > 0:
+            length = len(searches)
+            sql = ''
+            for i in range(length):
+                search_i = searches[i]
+                if i > 0:
+                    sql += " AND"
+                sql += " (description LIKE '%" + search_i + "%')"
+            cur = con.cursor()
+            cur.execute(query_start + sql)
+            con.commit()
+            filterCourses += querytoList(cur.fetchall())
+
+        for mustSearch in searches:
+            subsearch = subsearch.replace('"' + mustSearch + '"', "").strip()
+        
+        if subsearch != "":
+            cur = con.cursor()
+            query = "'%" + subsearch + "%'"
+            sub_sql = query_start + " description LIKE ?"
+            cur.execute(sub_sql, (query,))
+            filterCourses += querytoList(cur.fetchall())
+            searches += subsearch.split()
+            if len(filterCourses) == 0:
+                length = len(searches)
+                sql = ''
+                for i in range(length):
+                    search_i = searches[i]
+                    if i > 0:
+                        sql += " OR"
+                    sql += " (description LIKE '%" + search_i + "%')"
+                cur.execute(query_start + sql)
+                con.commit()
+                filterCourses += querytoList(cur.fetchall())
+        # print(searches)
+        totalList.append(filterCourses)
+    if request.args.get('searchcode'):   
+        # filterCourses
+        selectType = 'code'
+        filterCourses = list()
+        count += 1
+        count_special += 1
+        search = request.args.get('searchcode').replace("%20", " ")
+        subsearch = search.lower()
+        subsearch = re.sub(' +', ' ', search)
+        search_regex = '\"(.*?)\"'
+        searches = re.findall(search_regex, subsearch)
+        query_start = "SELECT id FROM temp_claremontcourses WHERE"
+        if len(searches) > 0:
+            length = len(searches)
+            sql = ''
+            for i in range(length):
+                search_i = searches[i]
+                if i > 0:
+                    sql += " AND"
+                sql += " (code LIKE '%" + search_i + "%')"
+            cur = con.cursor()
+            cur.execute(query_start + sql)
+            con.commit()
+            filterCourses += querytoList(cur.fetchall())
+
+        for mustSearch in searches:
+            subsearch = subsearch.replace('"' + mustSearch + '"', "").strip()
+        
+        if subsearch != "":
+            cur = con.cursor()
+            query = "'%" + subsearch + "%'"
+            sub_sql = query_start + " code LIKE ?"
+            cur.execute(sub_sql, (query,))
+            filterCourses += querytoList(cur.fetchall())
+            searches += subsearch.split()
+            if len(filterCourses) == 0:
+                length = len(searches)
+                sql = ''
+                for i in range(length):
+                    search_i = searches[i]
+                    if i > 0:
+                        sql += " OR"
+                    sql += " (code LIKE '%" + search_i + "%')"
+                cur.execute(query_start + sql)
+                con.commit()
+                filterCourses += querytoList(cur.fetchall())
         totalList.append(filterCourses)
 # \Search
 
@@ -453,6 +611,10 @@ def root():
         new_gened = new_geneds[i]
         if new_gened == "SC Gender and Women's Studies GE":
             new_gened = "SC Gender and Women"  
+        if new_gened == "PZ Intercultural Understanding-Global":
+            new_gened = "PZ Intercultural-Global"
+        if new_gened == "PZ Intercultural Understanding-Local":
+            new_gened = "PZ Intercultural-Local"            
         if i > 0:
             sql += " AND "
         sql += " (fulfillRequirements LIKE '%" + new_gened + "%')"
@@ -568,7 +730,7 @@ def root():
         next=n, majors=majors, input=search, perm=permclicked, colleges=collegeclickeds, majorclickeds=majorclickeds,
         prereqs=prereqclickeds, concurrentclicked=concurrentclicked, corequisiteclicked=corequisiteclicked, searches=searches,
         terms=terms,term1=term1,term2=term2, totalPages=totalPages, semester=semesterclicked, academicyear=academicyear, 
-        season=season, requirements=requirements, genedclickeds=genedclickeds
+        season=season, requirements=requirements, genedclickeds=genedclickeds,currentSemester=current_semester, collected_ids=collected_ids, selectType=selectType
         )   
 
 @app.route('/<code>', methods=['GET', 'POST'])
@@ -593,9 +755,13 @@ def course(code):
     if request.method == "POST":
         test(code)
 
+    collected_ids = list()
+    if request.cookies.get(code):
+        collected_ids.append(code)
+
     return render_template(
         'course.html', courses=courses, cookies=cookies, course=course, prereqs=prereqs, terms=terms, 
-        academicyear=academicyear, season=season, code=code, term1=term1,term2=term2
+        academicyear=academicyear, season=season, code=code, term1=term1,term2=term2, collected_ids=collected_ids
     )
 
 def test(code):
@@ -605,7 +771,7 @@ def test(code):
         me = request.form['email']
         you = "chu.hoang322@gmail.com"
         port = 465  # For SSL
-        password = "tonikroos14"   
+        password = "Ditmeping0.8"   
 
         # Create message container - the correct MIME type is multipart/alternative.
         msg = MIMEMultipart()
@@ -650,11 +816,12 @@ def test(code):
             msg.attach(part)
         except:
             pass
-        text = msg.as_string()  
+        text = msg.as_string() 
 
         # Create a secure SSL context
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+            # server.starttls()
             server.login(you, password)
             # Send email here
 
@@ -718,79 +885,6 @@ def upload(code):
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),'favicon.ico', mimetype='image/vnd.microsoft.icon')
-  
-# @app.route('/test/<code>', methods=['GET', 'POST'])
-# def test(code):
-#     if request.method == "POST":
-#         # me == my email address
-#         # you == recipient's email address
-#         me = request.form['email']
-#         you = "chu.hoang322@gmail.com"
-#         port = 465  # For SSL
-#         password = "tonikroos14"   
-
-#         # Create message container - the correct MIME type is multipart/alternative.
-#         msg = MIMEMultipart()
-#         msg['Subject'] = "[ClaremontCourses] " + request.form["error_type"] 
-#         msg['From'] = me
-#         msg['To'] = you
-
-#         # Create the body of the message (a plain-text and an HTML version).
-#         raw_text = "From: " + me
-#         html = """\
-#         <html>
-#         <head></head>
-#         <body><p>""" + raw_text + """</p>""" + request.form['description'] + """</body></html>"""
-
-#         # Record the MIME types of both parts - text/plain and text/html.
-#         html_text = MIMEText(html, 'html')
-
-#         # Attach parts into message container.
-#         # According to RFC 2046, the last part of a multipart message, in this case
-#         # the HTML message, is best and preferred.
-#         msg.attach(html_text)           
-#         try:  
-#             UPLOAD_FOLDER = 'tmp'
-#             file = request.files['filename']
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join(UPLOAD_FOLDER, filename))
-#             # Open PDF file in binary mode
-#             with open(UPLOAD_FOLDER + "/" + filename, "rb") as attachment:
-#                 # Add file as application/octet-stream
-#                 # Email client can usually download this automatically as attachment
-#                 part = MIMEBase("application", "octet-stream")
-#                 part.set_payload(attachment.read())
-
-#             # Encode file in ASCII characters to send by email    
-#             encoders.encode_base64(part)
-
-#             # Add header as key/value pair to attachment part
-#             part.add_header(
-#                 "Content-Disposition",
-#                 f"attachment; filename= {filename}",
-#             )
-#             msg.attach(part)
-#         except:
-#             pass
-#         text = msg.as_string()  
-
-#         # Create a secure SSL context
-#         context = ssl.create_default_context()
-#         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-#             server.login(you, password)
-#             # Send email here
-
-#             # sendmail function takes 3 arguments: sender's address, recipient's address
-#             # and message to send - here it is sent as one string.
-#             server.sendmail(me, you, text)
-#             server.quit()        
-
-#         return render_template(
-#             'test.html', code=code
-#         )  
-#     return render_template(
-#         'test.html',code=code
-#     )   
 
 
 

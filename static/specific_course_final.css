@@ -28,7 +28,6 @@ body {
 	line-height: 1.5;
 	color: #69707a;
 	text-align: left;
-	background-color: #fff
 }
 
 [tabindex="-1"]:focus:not(:focus-visible) {
@@ -2993,38 +2992,28 @@ a:hover {
 	color: #000
 }
 body.mode-dark {
-    --body-bg: #222324;
-    --body-bg-40: rgba(34,35,36,0.4);
-    --body-bg-70: rgba(34,35,36,0.7);
-    --body-bg-transparent: rgba(34,35,36,0);
-    --navtab-shadow: rgba(0,0,0,0.26);
-    --body-color: #aaa;
-    --gray: #aaa;
-    --gray-mid: #7d7d7d;
-    --gray-light: #666;
-    --gray-lighter: #474747;
-    --gray-lightest: #292929;
-    --gray-dark: #dddcdb;
-    --alert-success-color: #8fd19e;
-    --alert-success-background: #0b2f13;
-    --alert-success-border: #155724;
-    --alert-info-color: #86cfda;
-    --alert-info-background: #062d34;
-    --alert-info-border: #0c5460;
-    --alert-danger-color: #da8989;
-    --alert-danger-background: #330808;
-    --alert-danger-border: #5f0f0f;
-    --alert-warning-color: #ffdf7e;
-    --alert-warning-background: #473602;
-    --alert-warning-border: #856404;
-    --workload-lecture-bg: #063a65;
-    --workload-lecture-color: #2b98f3;
-    --workload-tutorial-bg: #374f1a;
-    --workload-tutorial-color: #93c755;
-    --workload-laboratory-bg: #302723;
-    --workload-laboratory-color: #977a6f;
-    --workload-project-bg: #663d00;
-    --workload-project-color: #ffa219;
-    --workload-preparation-bg: #81000d;
-    --workload-preparation-color: #ff3448;
+	--body-bg: #222324;
+	--body-bg-40: rgba(34,35,36,0.4);
+	--body-bg-70: rgba(34,35,36,0.7);
+	--body-bg-transparent: rgba(34,35,36,0);
+	--navtab-shadow: rgba(0,0,0,0.26);
+	--body-color: #aaa;
+	--gray: #aaa;
+	--gray-mid: #7d7d7d;
+	--gray-light: #666;
+	--gray-lighter: #474747;
+	--gray-lightest: #292929;
+	--gray-dark: #dddcdb;
+	--alert-success-color: #8fd19e;
+	--alert-success-background: #0b2f13;
+	--alert-success-border: #155724;
+	--alert-info-color: #86cfda;
+	--alert-info-background: #062d34;
+	--alert-info-border: #0c5460;
+	--alert-danger-color: #da8989;
+	--alert-danger-background: #330808;
+	--alert-danger-border: #5f0f0f;
+	--alert-warning-color: #ffdf7e;
+	--alert-warning-background: #473602;
+	--alert-warning-border: #856404;
 }

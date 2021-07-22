@@ -343,9 +343,6 @@ function corequisites(choice) {
         document.location.href = current_path.replace("corequisite=yes&", "")
     }
 };
-window.onload = function() {
-    document.getElementById('search-box').click();
-};
 
 function year(sem) {
     current_path = window.location.href;
@@ -368,11 +365,7 @@ function year(sem) {
         document.location.href = current_path + "semester=" + sem + "&";
     }
 };
-
-function report() {
-    window.open("https://forms.gle/QWgGpB2sjYF6RQBN7")
-};
-
+                    
 function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
@@ -400,3 +393,25 @@ function darkmode() {
         document.cookie = "darkmode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
   }
+
+  function displayReport() {
+    var x = document.getElementById("report_form");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }	
+  
+  function addtoPlanner(code) {
+    var planner = getCookie(code);
+    var element = document.getElementById('planner');
+    if(planner == ''){
+        document.cookie = code + "=on";
+        element.innerHTML = "<strong> Remove from My Courses </strong>";
+    }
+    else{
+        document.cookie = code + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; url=http://127.0.0.1:5000/";
+        element.innerHTML = "<strong> Add to My Courses </strong>";
+    }						  
+    }					  				  
