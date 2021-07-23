@@ -140,6 +140,7 @@ cython_debug/
 # Database
 .db
 db.sqlite3
+database/
 
 # Maintenance folder
 update/
