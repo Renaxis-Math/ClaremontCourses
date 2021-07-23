@@ -146,5 +146,5 @@ database/
 update/
 
 # Google credentials
-.json
-.pickle
+*.json
+*.pickle
